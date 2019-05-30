@@ -29,14 +29,13 @@ if [ "$1" = 'kibana' ]; then
 		sed -e "s|__PROJECT__|$PROJECT_NAME|" -i /opt/kibana/src/ui/views/chrome.jade
         fi
 
-        if [ "$ELASTICSEARCH_USER" != "" ]; then
+        if [ "$ELASTICSEARCH_USER" != "" -a "$ELASTICSEARCH_PASSWORD" != "" ]; then
                 sed -e "s|^#elasticsearch.username:.*$|elasticsearch.username: \"$ELASTICSEARCH_USER\"|" -i /opt/kibana/config/kibana.yml
                 sed -e "s|^#elasticsearch.password:.*$|elasticsearch.password: \"$ELASTICSEARCH_PASSWORD\"|" -i /opt/kibana/config/kibana.yml
 	else
-                ELASTICSEARCH_USER="kibanaserver"
-                ELASTICSEARCH_PASSWORD="kibanaserver"
-                sed -e "s|^#elasticsearch.username:.*$|elasticsearch.username: \"$ELASTICSEARCH_USER\"|" -i /opt/kibana/config/kibana.yml
-                sed -e "s|^#elasticsearch.password:.*$|elasticsearch.password: \"$ELASTICSEARCH_PASSWORD\"|" -i /opt/kibana/config/kibana.yml
+                echo >&2 'error: ELASTICSEARCH_USER or/and ELASTICSEARCH_PASSWORD environment variables were not configured'
+                echo >&2 '  these two docker environment variables must be configured before running the container'
+                exit 1
         fi
 
         if [ "$SUPPORT_ADDRESS" != "" ]; then
